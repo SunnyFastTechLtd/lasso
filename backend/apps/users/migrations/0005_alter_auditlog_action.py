@@ -1,0 +1,62 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('users', '0004_alter_auditlog_action'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='auditlog',
+            name='action',
+            field=models.CharField(
+                choices=[
+                    ('llm_update', '更新 LLM 配置'),
+                    ('llm_reset', '重置 LLM 配置'),
+                    ('user_create', '创建用户'),
+                    ('user_update', '修改用户'),
+                    ('user_delete', '删除用户'),
+                    ('kb_delete', '删除知识库'),
+                    ('department_create', '创建部门'),
+                    ('department_update', '修改部门'),
+                    ('department_delete', '删除部门'),
+                    ('egress_toggle', '切换出网总开关'),
+                    ('agent_create', '创建智能体'),
+                    ('agent_update', '编辑智能体'),
+                    ('agent_publish', '发布智能体'),
+                    ('agent_disable', '停用智能体'),
+                    ('agent_archive', '归档智能体'),
+                    ('agent_delete', '删除智能体'),
+                    ('agent_restore', '智能体恢复草稿'),
+                    ('agent_visibility', '改智能体可见范围'),
+                    ('agent_mount', '智能体挂载变更'),
+                    ('agent_risk_ack', '发布时确认风险项'),
+                    ('agent_rollback', '回滚到历史版本'),
+                    ('agent_version_diff', '版本对比'),
+                    ('mcp_create', '创建工具来源'),
+                    ('mcp_update', '编辑工具来源'),
+                    ('mcp_command_denied', '命令被白名单拒绝'),
+                    ('mcp_egress_denied', '出网被出口清单拒绝'),
+                    ('mcp_test', '连通性测试'),
+                    ('mcp_tool_toggle', '来源工具启停'),
+                    ('mcp_disable', '停用工具来源'),
+                    ('mcp_delete', '删除工具来源'),
+                    ('mcp_unmount', '摘除挂载'),
+                    ('mcp_secret_update', '变更来源密钥'),
+                    ('skill_upload', '上传技能'),
+                    ('skill_invalid', '技能校验失败'),
+                    ('skill_approve', '技能审核通过'),
+                    ('skill_reject', '技能驳回'),
+                    ('skill_disable', '技能停用'),
+                    ('skill_update', '编辑技能'),
+                    ('skill_delete', '删除技能'),
+                    ('tool_call', '工具调用'),
+                    ('tool_failed', '工具调用失败或被拒'),
+                ],
+                max_length=32,
+                verbose_name='操作类型',
+            ),
+        ),
+    ]

@@ -1,0 +1,32 @@
+# SearXNG systemd 单元（Lasso 天工 L2 默认搜索）
+#
+# 由 deploy/searxng/install.sh 安装到 /etc/systemd/system/searxng.service。
+# 源码与 venv 在 /opt/searxng，配置在 /etc/searxng/settings.yml，缓存写 /var/cache/searxng。
+# 完整安装、健康检查与回滚步骤见 docs/SEARXNG.md。
+
+[Unit]
+Description=SearXNG metasearch (Lasso Tiangong L2 default search)
+Documentation=https://docs.searxng.org/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=searxng
+Group=searxng
+WorkingDirectory=/opt/searxng
+Environment=SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
+Environment=PYTHONPATH=/opt/searxng
+Environment=SEARXNG_CACHE_DIR=/var/cache/searxng
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/searxng/venv/bin/python -m searx.webapp
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/cache/searxng
+
+[Install]
+WantedBy=multi-user.target

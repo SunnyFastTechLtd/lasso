@@ -1,0 +1,53 @@
+# Lasso 后端 systemd 单元
+#
+# 安装步骤见同目录 README.md；运行参数取舍见 docs/DEPLOYMENT.md。
+# 环境变量不走 EnvironmentFile：settings.py 用 python-dotenv 从
+# /srv/lasso/.env 读取，因此 WorkingDirectory 必须是 /srv/lasso。
+
+[Unit]
+Description=Lasso backend (Django WSGI via gunicorn)
+Documentation=file:///srv/lasso/docs/DEPLOYMENT.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lasso
+Group=lasso
+WorkingDirectory=/srv/lasso
+
+# 让 Python 的 stdout/stderr 不缓冲，日志实时进 journald
+Environment=PYTHONUNBUFFERED=1
+
+# 1 worker + 8 线程的取舍：
+# - 数据库已是 PostgreSQL，没有单写者限制；
+# - 登录失败节流仍用 Django 默认 LocMemCache，仅进程内有效，多 worker 会把
+#   实际阈值放大成 N 倍，扩容需连同缓存后端一起评估；
+# - SSE 流式对话会长期占用线程，gthread 用线程承接并发流；
+#   8 线程可支撑演示规模，同时保留单进程语义。
+ExecStart=/srv/lasso/.venv/bin/gunicorn backend.wsgi:application \
+    --bind 127.0.0.1:8000 \
+    --workers 1 \
+    --worker-class gthread \
+    --threads 8 \
+    --timeout 600 \
+    --graceful-timeout 30 \
+    --keep-alive 65 \
+    --access-logfile - \
+    --error-logfile -
+
+Restart=always
+RestartSec=3
+TimeoutStopSec=45
+KillSignal=SIGTERM
+
+SyslogIdentifier=lasso
+StandardOutput=journal
+StandardError=journal
+
+# 不设 NoNewPrivileges：平台应用代理配置时需要 `sudo systemctl restart searxng`，
+# 该选项会禁用 sudo 的 setuid 提权，导致重启失败（sudoers 仍只放行这一条命令）。
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

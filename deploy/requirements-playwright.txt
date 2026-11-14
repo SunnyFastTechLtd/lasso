@@ -1,0 +1,12 @@
+# 天工 L3（Bing 无头浏览器保底）可选依赖
+#
+# 这是「部署前置」依赖，不写进根目录 requirements.txt：
+#   - 未安装时应用照常运行，L3 只返回可读原因码（bing_unavailable），
+#     不影响 L1/L2/L4 与其他功能；
+#   - 安装方式见 deploy/install_playwright.sh。
+#
+# 版本需与 Chromium 构建匹配；升级时同时执行
+#   .venv/bin/python -m playwright install chromium
+#
+# 体积：wheel 约 40 MB，Chromium 下载约 170 MB，落盘约 300~500 MB。
+playwright==1.55.0

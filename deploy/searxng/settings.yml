@@ -1,0 +1,82 @@
+# SearXNG 配置模板 —— 由 deploy/searxng/install.sh 在首次安装时渲染到
+# /etc/searxng/settings.yml（占位符 __SEARXNG_SECRET_KEY__ 会替换成随机值）。
+# 线上改配置直接改 /etc/searxng/settings.yml，改完只需 systemctl restart searxng；
+# 不要再跑 install.sh 覆盖（除非显式加 --reset-config）。
+#
+# 这是一份增量配置：在 SearXNG 默认 settings.yml 之上只保留下面 5 个引擎，
+# 其余（google / baidu / sogou / 360search / qwant 等）全部关闭。
+#
+# 出网口径（实测结论，改动前同步 docs/SEARXNG.md）：
+#   bing          直连，走 cn.bing.com（www.bing.com 在国内会 302，而引擎默认不跟随）
+#   duckduckgo    走代理 http://192.0.2.10:7890，timeout 3.0
+#   wikipedia     走代理 http://192.0.2.10:7890，timeout 3.0
+#   github        直连
+#   stackoverflow 直连
+#   wikidata      关闭（单次约 3.6 秒只回 1 条，性价比最低）
+
+use_default_settings:
+  engines:
+    keep_only:
+      - bing
+      - duckduckgo
+      - wikipedia
+      - github
+      - stackoverflow
+
+general:
+  instance_name: "SearXNG (Lasso Tiangong L2)"
+  enable_metrics: false
+  debug: false
+  contact_url: "mailto:admin@lasso.local"
+
+server:
+  # 只监听回环地址：Lasso 从本机调用，不经过 nginx，也不暴露公网
+  bind_address: "127.0.0.1"
+  port: 8888
+  secret_key: "__SEARXNG_SECRET_KEY__"
+  # 仅本机调用，不存在跨用户滥用面，关闭 limiter 以免误伤后台检索
+  limiter: false
+  public_instance: false
+  image_proxy: false
+
+search:
+  safe_search: 0
+  default_lang: "zh-CN"
+  formats:
+    - html
+    # 必须显式开启，否则 /search?format=json 返回 403
+    - json
+
+outgoing:
+  request_timeout: 5.0
+  max_request_timeout: 10.0
+  pool_connections: 20
+  pool_maxsize: 20
+  # 上游只允许 https，避免明文出网
+  enable_http: false
+
+engines:
+  - name: bing
+    # 默认 settings.yml 里 bing 是 disabled: true，这里显式打开
+    disabled: false
+    # 国内 IP 访问 www.bing.com 会 302 到 cn.bing.com，而 SearXNG 引擎默认不跟随重定向
+    base_url: "https://cn.bing.com"
+    # __PROXY_bing__
+
+  # 下面四个引擎的代理行由平台/安装脚本按绑定渲染，占位符不能删
+  - name: duckduckgo
+    timeout: 3.0
+    # __PROXY_duckduckgo__
+
+  - name: wikipedia
+    timeout: 3.0
+    # 默认 display_type 只有 infobox（只出信息框、不进 results 列表），
+    # 天工要的是候选 URL，因此显式打开 list。
+    display_type: ["infobox", "list"]
+    # __PROXY_wikipedia__
+
+  - name: github
+    # __PROXY_github__
+
+  - name: stackoverflow
+    # __PROXY_stackoverflow__

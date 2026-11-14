@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+celerybeat-schedule*
+
+# 密钥与环境变量（参考副本亦不得纳入）
+.env
+.env.*
+*.env
+.llm.env
+*.pem
+*.key
+
+# Node
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 运行产物
+logs/
+*.log
+tmp/
+
+# 运维备份与运行缓存（服务器现场产出的备份，可随时重建或按需保留）
+backup-*/
+db.sqlite3.bak-*
+.cache/
+.perm-check
+models/
+
+# 只读参考副本（旧办公版 ai-work-sys），不入仓，本地留存查阅
+reference/

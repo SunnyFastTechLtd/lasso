@@ -1,0 +1,62 @@
+[
+  {
+    "device_id": "LTV-0231",
+    "name": "注塑机 3 号",
+    "dept": "设备运维部",
+    "location": "一号车间 A 区",
+    "status": "offline",
+    "firmware": "2.4.1",
+    "last_heartbeat": "2026-10-21 07:42:15",
+    "fault_code": "E12 液压压力低"
+  },
+  {
+    "device_id": "LTV-0288",
+    "name": "空压机 1 号",
+    "dept": "设备运维部",
+    "location": "动力站",
+    "status": "offline",
+    "firmware": "1.9.7",
+    "last_heartbeat": "2026-10-21 06:18:03",
+    "fault_code": ""
+  },
+  {
+    "device_id": "LTV-0305",
+    "name": "贴片机 2 号",
+    "dept": "设备运维部",
+    "location": "二号车间 B 区",
+    "status": "online",
+    "firmware": "3.1.0",
+    "last_heartbeat": "2026-10-21 09:05:44",
+    "fault_code": ""
+  },
+  {
+    "device_id": "PDA-1102",
+    "name": "巡检终端 12 号",
+    "dept": "一线班组",
+    "location": "成品仓",
+    "status": "offline",
+    "firmware": "5.0.2",
+    "last_heartbeat": "2026-10-20 18:33:09",
+    "fault_code": "电量耗尽"
+  },
+  {
+    "device_id": "PDA-1130",
+    "name": "巡检终端 15 号",
+    "dept": "一线班组",
+    "location": "一号车间",
+    "status": "online",
+    "firmware": "5.0.2",
+    "last_heartbeat": "2026-10-21 09:02:51",
+    "fault_code": ""
+  },
+  {
+    "device_id": "EMS-0417",
+    "name": "电能表 4 号",
+    "dept": "一线班组",
+    "location": "配电房",
+    "status": "offline",
+    "firmware": "1.2.0",
+    "last_heartbeat": "2026-10-19 11:27:36",
+    "fault_code": "通信模块无响应"
+  }
+]

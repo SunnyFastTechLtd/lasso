@@ -1,0 +1,42 @@
+# Lasso 通用企业级智能体平台 —— 后端依赖
+# 安装（裸机，uv + CPython 3.11）：
+#   UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple \
+#   uv pip install -r requirements.txt
+
+# Web 框架 / 接口
+Django==5.2.17  # 要求 PostgreSQL >= 14
+djangorestframework==3.18.1
+djangorestframework_simplejwt==5.5.1
+django-cors-headers==4.9.0
+python-dotenv==1.2.4
+uvicorn==0.54.0
+gunicorn==23.0.0  # WSGI 服务端，systemd 托管（替代 manage.py runserver）
+
+# 智能体内核（Agent 装配、MCP 客户端、技能加载）
+# MCPClient 依赖的 `mcp` 包由 agentscope 传递引入，不单独锁版本
+agentscope==2.0.9
+openai==3.24.0
+
+# 密钥加密（B5：MCP 来源密钥 Fernet 加密落库）
+cryptography==50.0.2
+
+# 数据库
+psycopg2-binary==2.9.13
+
+# 缓存 / 异步任务（大文档向量化可能很久）
+redis==5.2.1
+celery==5.6.3
+
+# 向量库 / 本地嵌入
+qdrant-client==1.19.1  # 与服务端 1.19.x 对齐；1.19.1+ 无 .search()，用 query_points()
+fastembed==0.7.4
+numpy==2.4.6
+pillow==11.3.0  # fastembed 0.7.x 要求 pillow<12
+
+# 知识库解析与文件生成（A4 平台内置能力 / E 知识库）
+pypdf==6.19.0
+pypdfium2==5.14.0  # 扫描 PDF 逐页渲染成图，供 OCR 使用
+python-docx==1.2.0
+openpyxl==3.1.5
+python-pptx==1.0.2
+reportlab==4.4.0

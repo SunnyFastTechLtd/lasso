@@ -1,0 +1,10 @@
+export type NavKey =
+  | 'chat'
+  | 'agent-builder'
+  | 'mcp-servers'
+  | 'skills'
+  | 'knowledge'
+  | 'usage'
+  | 'users'
+  | 'departments'
+  | 'settings'

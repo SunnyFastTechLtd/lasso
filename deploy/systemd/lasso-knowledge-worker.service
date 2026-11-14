@@ -1,0 +1,57 @@
+﻿# Lasso 知识库 Celery worker systemd 单元
+#
+# 安装步骤见同目录 README.md；与 lasso.service 共用 /srv/lasso/.env。
+# 只消费 knowledge 队列（文档切片 / OCR 入库），与 lasso-worker.service
+# 的默认队列互不干扰；lasso-worker 的并发与参数保持不变。
+#
+# 并发取值：
+#   - 多模态模型 OCR（默认，provider 已配置）：concurrency=2，单页等待模型返回即可；
+#   - 本机 tesseract OCR：concurrency=1，tesseract 吃满 CPU，并行只会互相拖慢。
+# 改法：把下面的 Environment=KNOWLEDGE_CONCURRENCY= 改成 1 后 daemon-reload + restart。
+#
+# acks_late / soft_time_limit 由任务装饰器控制（backend/apps/knowledge/tasks.py），
+# 单元里只负责进程托管；配合 --prefetch-multiplier=1 避免一个 worker 预取多份
+# 大文档导致 Redis 里长期占用。
+
+[Unit]
+Description=Lasso Celery worker (knowledge queue: chunking / OCR)
+Documentation=file:///srv/lasso/docs/DEPLOYMENT.md
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lasso
+Group=lasso
+WorkingDirectory=/srv/lasso
+
+# 让 Celery 日志实时进 journald
+Environment=PYTHONUNBUFFERED=1
+# LLM OCR 模式默认 2；tesseract 模式改成 1
+Environment=KNOWLEDGE_CONCURRENCY=2
+
+# 固定节点名：与 lasso-worker 区分，避免 inspect 时报 DuplicateNodenameWarning
+ExecStart=/srv/lasso/.venv/bin/celery -A backend worker \
+    -n knowledge@%%h \
+    --loglevel=info \
+    --queues=knowledge \
+    --concurrency=${KNOWLEDGE_CONCURRENCY} \
+    --prefetch-multiplier=1 \
+    --max-tasks-per-child=20
+
+Restart=always
+RestartSec=5
+# 任务 soft_time_limit=900s、time_limit=960s；停机时给正在收尾的任务留出时间，
+# 超时后 systemd 会发 SIGKILL，未 ack 的任务由 Redis 重新投递。
+TimeoutStopSec=120
+KillSignal=SIGTERM
+
+SyslogIdentifier=lasso-knowledge-worker
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <script>
+      // 首帧前定色：明暗 class 与 data-skin 同步落盘，避免切换闪烁（默认石墨深色）
+      // 登录页固定浅色石墨，不读偏好也不改写偏好
+      (function () {
+        try {
+          var path = window.location.pathname
+          var onLogin = path === '/login' || path.indexOf('/login/') === 0
+          var stored = localStorage.getItem('lasso_theme') || 'dark'
+          var dark =
+            !onLogin &&
+            (stored === 'dark' ||
+              (stored === 'system' &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches))
+          var skins = ['graphite', 'purple', 'navy', 'green', 'bluegold']
+          var skin = onLogin ? 'graphite' : localStorage.getItem('lasso_skin') || 'graphite'
+          if (skins.indexOf(skin) < 0) skin = 'graphite'
+          var root = document.documentElement
+          root.setAttribute('data-skin', skin)
+          root.classList.add(dark ? 'dark' : 'light')
+          var meta = document.querySelector('meta[name="color-scheme"]')
+          if (meta) meta.setAttribute('content', dark ? 'dark' : 'light')
+        } catch (e) {}
+      })()
+    </script>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>拉锁 Lasso · 企业级通用智能体平台</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

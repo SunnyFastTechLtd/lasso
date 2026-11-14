@@ -1,0 +1,44 @@
+﻿# Lasso Celery worker systemd 单元
+#
+# 安装步骤见同目录 README.md；与 lasso.service 共用 /srv/lasso/.env。
+# 没有对应 worker 时任务会在 Web 请求里同步执行（CELERY_TASK_ALWAYS_EAGER=True），
+# 知识库切片、天工采集等耗时任务会把接口拖到几十秒。
+
+[Unit]
+Description=Lasso Celery worker (default queue: chat / agents)
+Documentation=file:///srv/lasso/docs/DEPLOYMENT.md
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lasso
+Group=lasso
+WorkingDirectory=/srv/lasso
+
+# 让 Celery 日志实时进 journald
+Environment=PYTHONUNBUFFERED=1
+
+# 单并发足够：采集任务以网络抓取和模型调用为主，串行可避免同时打满外部接口；
+# max-tasks-per-child 定期回收子进程，规避嵌入模型加载后的内存增长。
+# 固定节点名：与 lasso-knowledge-worker 区分，避免 inspect 时报 DuplicateNodenameWarning
+ExecStart=/srv/lasso/.venv/bin/celery -A backend worker \
+    -n worker@%%h \
+    --loglevel=info \
+    --concurrency=1 \
+    --max-tasks-per-child=100
+
+Restart=always
+RestartSec=5
+TimeoutStopSec=60
+KillSignal=SIGTERM
+
+SyslogIdentifier=lasso-worker
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
